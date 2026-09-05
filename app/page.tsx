@@ -466,7 +466,7 @@ function Landing({onStart,onLogin}:{onStart:()=>void;onLogin:()=>void}){
     </section>
 
     <footer className="site-footer">
-      <span className="muted">© 2026 StudyFlow AI · Built by Kavish, in collaboration with PRISMxSTUDIO</span>
+      <span className="muted">© 2026 StudyFlow AI · Built by Kavish, in collaboration with PRISMxSTUDIO run by Lithishwar</span>
       <div className="footer-links">
         <Link href="/about">About</Link>
         <Link href="/privacy">Privacy</Link>

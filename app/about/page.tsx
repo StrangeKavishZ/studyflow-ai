@@ -11,14 +11,12 @@ export default function AboutPage(){
         <h1 className="font-display">Built by a student, for students.</h1>
 
         <p>
-          StudyFlow AI is an independent project built and coded by <strong>Kavish</strong> —
-          every feature, screen and line of code in this app was designed and built by him.
+          StudyFlow AI is an independent project crafted with ❤️ by <strong>Kavish</strong> —
         </p>
 
         <p>
-          StudyFlow is being introduced and promoted at school in collaboration with{' '}
-          <strong>PRISMxSTUDIO</strong>, run by <strong>Lithishwar</strong>, who is helping
-          spread the word to fellow students.
+          StudyFlow is being introduced to the world in collaboration with{' '}
+          <strong>PRISMxSTUDIO</strong>, run by <strong>Lithishwar</strong>, 
         </p>
 
         <p>
