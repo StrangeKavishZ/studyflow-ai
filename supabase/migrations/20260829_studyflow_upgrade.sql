@@ -1,0 +1,30 @@
+
+-- StudyFlow upgrade: profiles, community channels and threads
+alter table public.profiles add column if not exists username text;
+create unique index if not exists profiles_username_unique on public.profiles (lower(username)) where username is not null and username <> '';
+alter table public.community_messages add column if not exists channel text not null default 'Foyer';
+alter table public.community_messages add column if not exists thread_id uuid;
+create table if not exists public.community_threads (id uuid primary key default gen_random_uuid(), community_id uuid references public.communities(id) on delete cascade not null, channel text not null default 'Foyer', title text not null check (char_length(title) between 2 and 180), created_by uuid references auth.users(id) on delete cascade not null, created_at timestamptz default now());
+alter table public.community_messages drop constraint if exists community_messages_thread_id_fkey;
+alter table public.community_messages add constraint community_messages_thread_id_fkey foreign key (thread_id) references public.community_threads(id) on delete set null;
+alter table public.community_threads enable row level security;
+drop policy if exists "members read community threads" on public.community_threads;
+create policy "members read community threads" on public.community_threads for select to authenticated using (exists(select 1 from public.community_members m where m.community_id=community_threads.community_id and m.user_id=auth.uid() and m.status='active'));
+drop policy if exists "members create community threads" on public.community_threads;
+create policy "members create community threads" on public.community_threads for insert to authenticated with check (created_by=auth.uid() and exists(select 1 from public.community_members m where m.community_id=community_threads.community_id and m.user_id=auth.uid() and m.status='active'));
+drop policy if exists "public groups readable" on public.study_groups;
+create policy "public groups readable" on public.study_groups for select to authenticated using (privacy='public' or owner_id=auth.uid() or exists(select 1 from public.study_group_members m where m.group_id=study_groups.id and m.user_id=auth.uid() and m.status='active'));
+drop policy if exists "users create own groups" on public.study_groups;
+create policy "users create own groups" on public.study_groups for insert to authenticated with check (owner_id=auth.uid());
+drop policy if exists "owners update groups" on public.study_groups;
+create policy "owners update groups" on public.study_groups for update to authenticated using (owner_id=auth.uid()) with check (owner_id=auth.uid());
+drop policy if exists "members read group membership" on public.study_group_members;
+create policy "members read group membership" on public.study_group_members for select to authenticated using (user_id=auth.uid() or exists(select 1 from public.study_group_members m where m.group_id=study_group_members.group_id and m.user_id=auth.uid() and m.status='active'));
+drop policy if exists "users join groups" on public.study_group_members;
+create policy "users join groups" on public.study_group_members for insert to authenticated with check (user_id=auth.uid());
+drop policy if exists "users manage own group membership" on public.study_group_members;
+create policy "users manage own group membership" on public.study_group_members for update to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+drop policy if exists "members read group messages" on public.group_messages;
+create policy "members read group messages" on public.group_messages for select to authenticated using (exists(select 1 from public.study_group_members m where m.group_id=group_messages.group_id and m.user_id=auth.uid() and m.status='active'));
+drop policy if exists "members send group messages" on public.group_messages;
+create policy "members send group messages" on public.group_messages for insert to authenticated with check (user_id=auth.uid() and exists(select 1 from public.study_group_members m where m.group_id=group_messages.group_id and m.user_id=auth.uid() and m.status='active'));
