@@ -3,6 +3,7 @@
 -- Read/update remain restricted to the notification's own owner.
 
 drop policy if exists "authenticated users create notifications" on public.notifications;
+drop policy if exists "community members notify each other" on public.notifications;
 create policy "community members notify each other" on public.notifications
   for insert to authenticated
   with check (
